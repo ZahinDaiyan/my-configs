@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerShell 7 Dev Setup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg:        #1e1e2e;
+    --surface:   #181825;
+    --overlay:   #313244;
+    --muted:     #6c7086;
+    --subtle:    #a6adc8;
+    --text:      #cdd6f4;
+    --lavender:  #b4befe;
+    --blue:      #89b4fa;
+    --sapphire:  #74c7ec;
+    --sky:       #89dceb;
+    --teal:      #94e2d5;
+    --green:     #a6e3a1;
+    --yellow:    #f9e2af;
+    --peach:     #fab387;
+    --maroon:    #eba0ac;
+    --red:       #f38ba8;
+    --mauve:     #cba6f7;
+    --pink:      #f5c2e7;
+    --flamingo:  #f2cdcd;
+    --rosewater: #f5e0dc;
+    --crust:     #11111b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--crust);
+    border-bottom: 1px solid var(--overlay);
+    padding: 2.5rem 3rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+  }
+  .header-inner { max-width: 900px; margin: 0 auto; }
+  .badge { 
+    display: inline-block;
+    background: var(--mauve);
+    color: var(--crust);
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: .25rem .6rem;
+    border-radius: 3px;
+    margin-bottom: .75rem;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    color: var(--lavender);
+    letter-spacing: -.02em;
+    line-height: 1.2;
+  }
+  h1 span { color: var(--peach); }
+  .subtitle { color: var(--muted); font-size: .8rem; margin-top: .4rem; }
+
+  /* ── NAV PILLS ── */
+  nav {
+    max-width: 900px;
+    margin: 2rem auto 0;
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    padding: 0 3rem;
+  }
+  nav a {
+    text-decoration: none;
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .05em;
+    padding: .3rem .75rem;
+    border-radius: 20px;
+    border: 1px solid var(--overlay);
+    color: var(--subtle);
+    transition: all .2s;
+  }
+  nav a:hover { border-color: var(--mauve); color: var(--mauve); }
+
+  /* ── LAYOUT ── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 3rem 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  /* ── SECTION ── */
+  section {
+    border: 1px solid var(--overlay);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .section-header {
+    padding: 1.2rem 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    border-bottom: 1px solid var(--overlay);
+    background: linear-gradient(135deg, var(--crust) 0%, var(--surface) 100%);
+  }
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .section-body { padding: 1.6rem; display: flex; flex-direction: column; gap: 1.2rem; }
+
+  /* ── PROSE ── */
+  p { color: var(--subtle); font-size: .82rem; line-height: 1.8; }
+  strong { color: var(--text); font-weight: 600; }
+  em { color: var(--yellow); font-style: normal; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--crust);
+    border: 1px solid var(--overlay);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .code-top {
+    padding: .5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--overlay);
+    background: rgba(0,0,0,.3);
+  }
+  .code-lang { font-size: .65rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+  .copy-btn {
+    background: var(--overlay);
+    border: none;
+    color: var(--subtle);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem;
+    padding: .2rem .6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: .05em;
+  }
+  .copy-btn:hover { background: var(--mauve); color: var(--crust); }
+  .copy-btn.copied { background: var(--green); color: var(--crust); }
+
+  pre {
+    padding: 1.2rem 1.4rem;
+    overflow-x: auto;
+    font-size: .8rem;
+    line-height: 1.9;
+    tab-size: 2;
+  }
+  code { font-family: 'JetBrains Mono', monospace; }
+
+  /* syntax colours */
+  .c-cmd   { color: var(--blue); }
+  .c-str   { color: var(--green); }
+  .c-flag  { color: var(--peach); }
+  .c-cmt   { color: var(--muted); font-style: italic; }
+  .c-var   { color: var(--mauve); }
+  .c-kw    { color: var(--red); }
+  .c-num   { color: var(--yellow); }
+  .c-path  { color: var(--teal); }
+  .c-head  { color: var(--sapphire); font-weight: 600; }
+  .c-prop  { color: var(--flamingo); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    display: flex;
+    gap: .8rem;
+    padding: .9rem 1.1rem;
+    border-radius: 8px;
+    font-size: .78rem;
+    border-left: 3px solid;
+    align-items: flex-start;
+  }
+  .callout.info    { background: rgba(137,180,250,.08); border-color: var(--blue);   color: var(--blue); }
+  .callout.warn    { background: rgba(249,226,175,.08); border-color: var(--yellow); color: var(--yellow); }
+  .callout.tip     { background: rgba(166,227,161,.08); border-color: var(--green);  color: var(--green); }
+  .callout.purple  { background: rgba(203,166,247,.08); border-color: var(--mauve);  color: var(--mauve); }
+  .callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: .05rem; }
+  .callout p { color: inherit; font-size: .78rem; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media(max-width:600px){ .grid-2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--overlay);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+  }
+  .card-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: .4rem; }
+  .card-val   { font-size: .82rem; color: var(--text); }
+
+  /* ── TAG LIST ── */
+  .tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .tag {
+    font-size: .68rem;
+    padding: .2rem .55rem;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  /* ── PALETTE SWATCH ── */
+  .palette { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .swatch {
+    width: 36px; height: 36px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,.08);
+    position: relative;
+    cursor: default;
+  }
+  .swatch::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: -1.4rem;
+    left: 50%; transform: translateX(-50%);
+    font-size: .55rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .palette-wrap { padding-bottom: 1.6rem; }
+
+  /* ── TERMINAL MOCKUP ── */
+  .term-mock {
+    background: rgba(17,17,27,.85);
+    border: 1px solid var(--overlay);
+    border-radius: 10px;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+  }
+  .term-chrome {
+    background: var(--surface);
+    padding: .6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    border-bottom: 1px solid var(--overlay);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r { background: var(--red); }
+  .dot.y { background: var(--yellow); }
+  .dot.g { background: var(--green); }
+  .term-title { font-size: .7rem; color: var(--muted); margin-left: .4rem; }
+  .term-body { padding: 1rem 1.2rem; font-size: .78rem; line-height: 2; }
+
+  /* prompt segments */
+  .seg { display: inline-block; padding: .1rem .55rem; font-weight: 600; font-size: .75rem; }
+  .seg.dir   { background: var(--blue);   color: var(--crust); border-radius: 4px 0 0 4px; }
+  .seg.git   { background: var(--mauve);  color: var(--crust); }
+  .seg.time  { background: var(--surface); color: var(--muted); border-radius: 0 4px 4px 0; font-weight: 400; }
+  .seg.ok    { color: var(--green); }
+  .ps-caret  { color: var(--peach); font-weight: 700; }
+  .ps-cursor { display: inline-block; width: 8px; height: 1.1em; background: var(--text); vertical-align: text-bottom; animation: blink 1.1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* status bar */
+  .status-bar {
+    background: var(--mauve);
+    color: var(--crust);
+    font-size: .7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  .sb-seg {
+    padding: .22rem .9rem;
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+  }
+  .sb-seg.mode { background: var(--blue);   color: var(--crust); }
+  .sb-seg.dir  { background: var(--overlay); color: var(--text); }
+  .sb-seg.git  { background: var(--green);  color: var(--crust); }
+  .sb-seg.time { background: var(--surface); color: var(--muted); margin-left: auto; }
+
+  hr { border: none; border-top: 1px solid var(--overlay); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="badge">Setup Guide</div>
+    <h1>PowerShell 7 <span>Dev Environment</span></h1>
+    <p class="subtitle">Catppuccin Mocha · Oh My Posh · Yazi · Translucent Glass · Status Bar</p>
+  </div>
+</header>
+
+<nav>
+  <a href="#prereqs">Prerequisites</a>
+  <a href="#font">Nerd Font</a>
+  <a href="#theme">Catppuccin</a>
+  <a href="#omp">Oh My Posh</a>
+  <a href="#profile">PS Profile</a>
+  <a href="#yazi">Yazi</a>
+  <a href="#glass">Glass BG</a>
+  <a href="#modules">Modules</a>
+</nav>
+
+<main>
+
+  <!-- PALETTE PREVIEW -->
+  <section>
+    <div class="section-header">
+      <div class="step-num" style="background:var(--mauve);color:var(--crust)">🎨</div>
+      <div class="section-title">Catppuccin Mocha — Colour Palette</div>
+    </div>
+    <div class="section-body">
+      <p>The <strong>Catppuccin Mocha</strong> flavour is the darkest variant — perfect for long coding sessions. Every color you see in this guide maps directly to the theme.</p>
+      <div class="palette-wrap">
+        <div class="palette">
+          <div class="swatch" style="background:#f5e0dc" data-name="Rosewater"></div>
+          <div class="swatch" style="background:#f2cdcd" data-name="Flamingo"></div>
+          <div class="swatch" style="background:#f5c2e7" data-name="Pink"></div>
+          <div class="swatch" style="background:#cba6f7" data-name="Mauve"></div>
+          <div class="swatch" style="background:#f38ba8" data-name="Red"></div>
+          <div class="swatch" style="background:#eba0ac" data-name="Maroon"></div>
+          <div class="swatch" style="background:#fab387" data-name="Peach"></div>
+          <div class="swatch" style="background:#f9e2af" data-name="Yellow"></div>
+          <div class="swatch" style="background:#a6e3a1" data-name="Green"></div>
+          <div class="swatch" style="background:#94e2d5" data-name="Teal"></div>
+          <div class="swatch" style="background:#89dceb" data-name="Sky"></div>
+          <div class="swatch" style="background:#74c7ec" data-name="Sapphire"></div>
+          <div class="swatch" style="background:#89b4fa" data-name="Blue"></div>
+          <div class="swatch" style="background:#b4befe" data-name="Lavender"></div>
+          <div class="swatch" style="background:#1e1e2e" data-name="Base"></div>
+          <div class="swatch" style="background:#11111b" data-name="Crust"></div>
+        </div>
+      </div>
+
+      <!-- Terminal mockup -->
+      <div class="term-mock">
+        <div class="term-chrome">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span class="term-title">PowerShell 7 — Catppuccin Mocha</span>
+        </div>
+        <div class="term-body">
+          <div>
+            <span class="seg dir">󰉋 ~/projects/myapp</span><span class="seg git"> main*</span><span class="seg time"> 14:32</span>
+          </div>
+          <div style="margin-top:.3rem">
+            <span class="ps-caret">❯</span>
+            <span style="color:var(--blue)"> git </span>
+            <span style="color:var(--text)">status</span>
+            <span class="ps-cursor"></span>
+          </div>
+        </div>
+        <div class="status-bar">
+          <div class="sb-seg mode">󰘳 NORMAL</div>
+          <div class="sb-seg dir">󰉋 ~/projects/myapp</div>
+          <div class="sb-seg git"> main ↑2</div>
+          <div class="sb-seg time">󰥔 14:32:07</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 1 – PREREQUISITES -->
+  <section id="prereqs">
+    <div class="section-header">
+      <div class="step-num" style="background:var(--blue);color:var(--crust)">01</div>
+      <div class="section-title">Prerequisites — Install Everything First</div>
+    </div>
+    <div class="section-body">
+      <p>Run these in an <strong>elevated PowerShell 7</strong> window. <em>winget</em> handles almost everything.</p>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">powershell</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="c-cmt"># ── Winget install all core tools ──────────────────────</span>
+<span class="c-cmd">winget</span> <span class="c-flag">install</span> <span class="c-str">--id</span> JanDeDobbeleer.OhMyPosh  <span class="c-flag">-e</span>
+<span class="c-cmd">winget</span> <span class="c-flag">install</span> <span class="c-str">--id</span> sxyazi.yazi               <span class="c-flag">-e</span>
+<span class="c-cmd">winget</span> <span class="c-flag">install</span> <span class="c-str">--id</span> Neovim.Neovim             <span class="c-flag">-e</span>   <span class="c-cmt"># skip if already done</span>
+<span class="c-cmd">winget</span> <span class="c-flag">install</span> <span class="c-str">--id</span> BurntSushi.ripgrep.MSVC   <span class="c-flag">-e</span>   <span class="c-cmt"># needed by yazi/nvim</span>
+<span class="c-cmd">winget</span> <span class="c-flag">install</span> <span class="c-str">--id</span> sharkdp.fd                <span class="c-flag">-e</span>   <span class="c-cmt"># fast find, yazi dep</span>
+<span class="c-cmd">winget</span> <span class="c-flag">install</span> <span class="c-str">--id</span> ImageMagick.ImageMagick   <span class="c-flag">-e</span>   <span class="c-cmt"># image preview in yazi</span></code></pre>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ</span>
+        <p>If <code>winget</code> is missing, install it from <strong>App Installer</strong> in the Microsoft Store. All packages above go to your PATH automatically.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 – NERD FONT -->
+  <section id="font">
+    <div class="section-header">
+      <div class="step-num" style="background:var(--peach);color:var(--crust)">02</div>
+      <div class="section-title">Nerd Font — JetBrains Mono NF</div>
+    </div>
+    <div class="section-body">
+      <p>Oh My Posh prompt glyphs require a <strong>Nerd Font</strong>. JetBrains Mono Nerd Font is the best pairing for your existing Neovim setup.</p>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">powershell</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="c-cmt"># Install via Oh My Posh font manager (easiest way)</span>
+<span class="c-cmd">oh-my-posh</span> font install JetBrainsMono
+
+<span class="c-cmt"># Or install manually from nerdfonts.com and place in:
+# C:\Windows\Fonts\   (system)
+# %LOCALAPPDATA%\Microsoft\Windows\Fonts\  (user)</span></code></pre>
+      </div>
+
+      <p>Then in <strong>Windows Terminal</strong>: Settings → your PowerShell profile → Appearance → Font face → <em>JetBrainsMono Nerd Font</em>. Also set it in your <strong>Neovim</strong> GUI font setting.</p>
+
+      <div class="callout tip">
+        <span class="callout-icon">✓</span>
+        <p>Recommended font size: <strong>13–14pt</strong>, line height <strong>1.2</strong>. Enable ligatures in Windows Terminal for the best look.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 – CATPPUCCIN THEME -->
+  <section id="theme">
+    <div class="section-header">
+      <div class="step-num" style="background:var(--mauve);color:var(--crust)">03</div>
+      <div class="section-title">Catppuccin Theme — Windows Terminal</div>
+    </div>
+    <div class="section-body">
+      <p>Open <strong>Windows Terminal → Settings → Open JSON file</strong> (bottom-left gear icon). Add the Catppuccin Mocha scheme to your <code>schemes</code> array, then reference it in your profile.</p>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">json — settings.json → schemes array</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code>{
+  <span class="c-prop">"name"</span>: <span class="c-str">"Catppuccin Mocha"</span>,
+  <span class="c-prop">"background"</span>: <span class="c-str">"#1E1E2E"</span>,
+  <span class="c-prop">"foreground"</span>: <span class="c-str">"#CDD6F4"</span>,
+  <span class="c-prop">"cursorColor"</span>: <span class="c-str">"#F5E0DC"</span>,
+  <span class="c-prop">"selectionBackground"</span>: <span class="c-str">"#585B70"</span>,
+  <span class="c-prop">"black"</span>:   <span class="c-str">"#45475A"</span>,
+  <span class="c-prop">"blue"</span>:    <span class="c-str">"#89B4FA"</span>,
+  <span class="c-prop">"cyan"</span>:    <span class="c-str">"#89DCEB"</span>,
+  <span class="c-prop">"green"</span>:   <span class="c-str">"#A6E3A1"</span>,
+  <span class="c-prop">"purple"</span>:  <span class="c-str">"#CBA6F7"</span>,
+  <span class="c-prop">"red"</span>:     <span class="c-str">"#F38BA8"</span>,
+  <span class="c-prop">"white"</span>:   <span class="c-str">"#BAC2DE"</span>,
+  <span class="c-prop">"yellow"</span>:  <span class="c-str">"#F9E2AF"</span>,
+  <span class="c-prop">"brightBlack"</span>:   <span class="c-str">"#585B70"</span>,
+  <span class="c-prop">"brightBlue"</span>:    <span class="c-str">"#89B4FA"</span>,
+  <span class="c-prop">"brightCyan"</span>:    <span class="c-str">"#89DCEB"</span>,
+  <span class="c-prop">"brightGreen"</span>:   <span class="c-str">"#A6E3A1"</span>,
+  <span class="c-prop">"brightPurple"</span>:  <span class="c-str">"#CBA6F7"</span>,
+  <span class="c-prop">"brightRed"</span>:     <span class="c-str">"#F38BA8"</span>,
+  <span class="c-prop">"brightWhite"</span>:   <span class="c-str">"#A6ADC8"</span>,
+  <span class="c-prop">"brightYellow"</span>:  <span class="c-str">"#F9E2AF"</span>
+}</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">json — in your PowerShell profile object</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code>{
+  <span class="c-prop">"name"</span>: <span class="c-str">"PowerShell"</span>,
+  <span class="c-prop">"source"</span>: <span class="c-str">"Windows.Terminal.PowershellCore"</span>,
+  <span class="c-prop">"colorScheme"</span>: <span class="c-str">"Catppuccin Mocha"</span>,
+  <span class="c-prop">"font"</span>: {
+    <span class="c-prop">"face"</span>: <span class="c-str">"JetBrainsMono Nerd Font"</span>,
+    <span class="c-prop">"size"</span>: <span class="c-num">13.5</span>,
+    <span class="c-prop">"ligatures"</span>: <span class="c-kw">true</span>
+  },
+  <span class="c-prop">"opacity"</span>: <span class="c-num">85</span>,
+  <span class="c-prop">"useAcrylic"</span>: <span class="c-kw">true</span>,
+  <span class="c-prop">"acrylicOpacity"</span>: <span class="c-num">0.85</span>,
+  <span class="c-prop">"backgroundImage"</span>: <span class="c-str">null</span>,
+  <span class="c-prop">"cursorShape"</span>: <span class="c-str">"bar"</span>,
+  <span class="c-prop">"padding"</span>: <span class="c-str">"8, 8, 8, 8"</span>
+}</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠</span>
+        <p><strong>opacity</strong> enables the translucent glass effect. <strong>useAcrylic: true</strong> activates Windows' blur-behind rendering. On Windows 11 you can also set <code>"experimental.useBackdropBrush": true</code> for Mica/Acrylic material.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4 – OH MY POSH -->
+  <section id="omp">
+    <div class="section-header">
+      <div class="step-num" style="background:var(--green);color:var(--crust)">04</div>
+      <div class="section-title">Oh My Posh — Prompt & Status Bar</div>
+    </div>
+    <div class="section-body">
+      <p>Oh My Posh renders your prompt <em>and</em> the bottom status bar (called a <strong>transient prompt</strong> + right-side segments). We'll use the Catppuccin-flavoured <strong>catppuccin</strong> theme as base, then customise it.</p>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">powershell — download base theme</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="c-cmt"># Create config directory</span>
+<span class="c-cmd">New-Item</span> <span class="c-flag">-ItemType Directory</span> <span class="c-flag">-Force</span> <span class="c-path">~/.config/ohmyposh</span>
+
+<span class="c-cmt"># Download the Catppuccin Mocha OMP theme</span>
+<span class="c-cmd">Invoke-WebRequest</span> <span class="c-str">`
+  "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/catppuccin_mocha.omp.json"</span> <span class="c-str">`
+  </span><span class="c-flag">-OutFile</span> <span class="c-path">~/.config/ohmyposh/theme.json</span></code></pre>
+      </div>
+
+      <p>Now create a <strong>custom theme</strong> with a bottom status bar. Save this as <code>~/.config/ohmyposh/mytheme.omp.json</code>:</p>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">json — ~/.config/ohmyposh/mytheme.omp.json</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code>{
+  <span class="c-prop">"$schema"</span>: <span class="c-str">"https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json"</span>,
+  <span class="c-prop">"version"</span>: <span class="c-num">3</span>,
+  <span class="c-prop">"final_space"</span>: <span class="c-kw">true</span>,
+  <span class="c-prop">"console_title_template"</span>: <span class="c-str">"{{ .Shell }} — {{ .Folder }}"</span>,
+
+  <span class="c-head">"blocks"</span>: [
+    {
+      <span class="c-prop">"type"</span>: <span class="c-str">"prompt"</span>,
+      <span class="c-prop">"alignment"</span>: <span class="c-str">"left"</span>,
+      <span class="c-prop">"segments"</span>: [
+        {
+          <span class="c-prop">"type"</span>: <span class="c-str">"path"</span>,
+          <span class="c-prop">"style"</span>: <span class="c-str">"powerline"</span>,
+          <span class="c-prop">"powerline_symbol"</span>: <span class="c-str">"\uE0B0"</span>,
+          <span class="c-prop">"foreground"</span>: <span class="c-str">"#1e1e2e"</span>,
+          <span class="c-prop">"background"</span>: <span class="c-str">"#89b4fa"</span>,
+          <span class="c-prop">"template"</span>: <span class="c-str">" \uF07C {{ .Path }} "</span>,
+          <span class="c-prop">"properties"</span>: {
+            <span class="c-prop">"style"</span>: <span class="c-str">"agnoster_short"</span>,
+            <span class="c-prop">"max_depth"</span>: <span class="c-num">3</span>
+          }
+        },
+        {
+          <span class="c-prop">"type"</span>: <span class="c-str">"git"</span>,
+          <span class="c-prop">"style"</span>: <span class="c-str">"powerline"</span>,
+          <span class="c-prop">"powerline_symbol"</span>: <span class="c-str">"\uE0B0"</span>,
+          <span class="c-prop">"foreground"</span>: <span class="c-str">"#1e1e2e"</span>,
+          <span class="c-prop">"background"</span>: <span class="c-str">"#cba6f7"</span>,
+          <span class="c-prop">"template"</span>: <span class="c-str">" \uE0A0 {{ .HEAD }}{{ if .Working.Changed }}*{{ end }} "</span>,
+          <span class="c-prop">"properties"</span>: {
+            <span class="c-prop">"fetch_status"</span>: <span class="c-kw">true</span>,
+            <span class="c-prop">"fetch_upstream_icon"</span>: <span class="c-kw">true</span>
+          }
+        },
+        {
+          <span class="c-prop">"type"</span>: <span class="c-str">"node"</span>,
+          <span class="c-prop">"style"</span>: <span class="c-str">"powerline"</span>,
+          <span class="c-prop">"powerline_symbol"</span>: <span class="c-str">"\uE0B0"</span>,
+          <span class="c-prop">"foreground"</span>: <span class="c-str">"#1e1e2e"</span>,
+          <span class="c-prop">"background"</span>: <span class="c-str">"#a6e3a1"</span>,
+          <span class="c-prop">"template"</span>: <span class="c-str">" \uE718 {{ .Full }} "</span>
+        }
+      ]
+    },
+    {
+      <span class="c-prop">"type"</span>: <span class="c-str">"prompt"</span>,
+      <span class="c-prop">"alignment"</span>: <span class="c-str">"right"</span>,
+      <span class="c-prop">"segments"</span>: [
+        {
+          <span class="c-prop">"type"</span>: <span class="c-str">"executiontime"</span>,
+          <span class="c-prop">"style"</span>: <span class="c-str">"plain"</span>,
+          <span class="c-prop">"foreground"</span>: <span class="c-str">"#f9e2af"</span>,
+          <span class="c-prop">"template"</span>: <span class="c-str">"\uF252 {{ .FormattedMs }} "</span>,
+          <span class="c-prop">"properties"</span>: { <span class="c-prop">"threshold"</span>: <span class="c-num">500</span> }
+        },
+        {
+          <span class="c-prop">"type"</span>: <span class="c-str">"time"</span>,
+          <span class="c-prop">"style"</span>: <span class="c-str">"plain"</span>,
+          <span class="c-prop">"foreground"</span>: <span class="c-str">"#6c7086"</span>,
+          <span class="c-prop">"template"</span>: <span class="c-str">"\uF017 {{ .CurrentDate | date \"15:04\" }} "</span>
+        }
+      ]
+    },
+    {
+      <span class="c-prop">"type"</span>: <span class="c-str">"prompt"</span>,
+      <span class="c-prop">"alignment"</span>: <span class="c-str">"left"</span>,
+      <span class="c-prop">"newline"</span>: <span class="c-kw">true</span>,
+      <span class="c-prop">"segments"</span>: [
+        {
+          <span class="c-prop">"type"</span>: <span class="c-str">"status"</span>,
+          <span class="c-prop">"style"</span>: <span class="c-str">"plain"</span>,
+          <span class="c-prop">"foreground_templates"</span>: [
+            <span class="c-str">"{{ if gt .Code 0 }}#f38ba8{{ end }}"</span>,
+            <span class="c-str">"#a6e3a1"</span>
+          ],
+          <span class="c-prop">"template"</span>: <span class="c-str">"{{ if gt .Code 0 }}\uF00D{{ else }}\uF00C{{ end }} \u276F "</span>
+        }
+      ]
+    }
+  ],
+
+  <span class="c-head">"transient_prompt"</span>: {
+    <span class="c-prop">"foreground"</span>: <span class="c-str">"#cba6f7"</span>,
+    <span class="c-prop">"background"</span>: <span class="c-str">"transparent"</span>,
+    <span class="c-prop">"template"</span>: <span class="c-str">"\u276F "</span>
+  },
+
+  <span class="c-head">"secondary_prompt"</span>: {
+    <span class="c-prop">"foreground"</span>: <span class="c-str">"#6c7086"</span>,
+    <span class="c-prop">"background"</span>: <span class="c-str">"transparent"</span>,
+    <span class="c-prop">"template"</span>: <span class="c-str">"\u276F\u276F "</span>
+  }
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 – PS PROFILE -->
+  <section id="profile">
+    <div class="section-header">
+      <div class="step-num" style="background:var(--yellow);color:var(--crust)">05</div>
+      <div class="section-title">PowerShell Profile — $PROFILE</div>
+    </div>
+    <div class="section-body">
+      <p>This is the heart of the setup. Open <code>$PROFILE</code> in Neovim (<code>nvim $PROFILE</code>) and paste the block below.</p>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">powershell — $PROFILE</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="c-cmt"># ════════════════════════════════════════════════════════
+#  PowerShell 7 — Dev Profile   (Catppuccin + Oh My Posh)
+# ════════════════════════════════════════════════════════</span>
+
+<span class="c-cmt"># ── Oh My Posh prompt ──────────────────────────────────</span>
+<span class="c-cmd">oh-my-posh</span> init pwsh <span class="c-flag">--config</span> <span class="c-str">"$env:USERPROFILE\.config\ohmyposh\mytheme.omp.json"</span> | <span class="c-cmd">Invoke-Expression</span>
+
+<span class="c-cmt"># ── PSReadLine (better editing) ────────────────────────</span>
+<span class="c-cmd">Import-Module</span> PSReadLine
+<span class="c-cmd">Set-PSReadLineOption</span> <span class="c-flag">-EditMode</span> Vi                        <span class="c-cmt"># Vi keys! (use Emacs if preferred)</span>
+<span class="c-cmd">Set-PSReadLineOption</span> <span class="c-flag">-PredictionSource</span> HistoryAndPlugin
+<span class="c-cmd">Set-PSReadLineOption</span> <span class="c-flag">-PredictionViewStyle</span> ListView
+<span class="c-cmd">Set-PSReadLineOption</span> <span class="c-flag">-BellStyle</span> None
+<span class="c-cmd">Set-PSReadLineOption</span> <span class="c-flag">-HistorySearchCursorMovesToEnd</span>
+<span class="c-cmd">Set-PSReadLineKeyHandler</span> <span class="c-flag">-Key</span> Tab            <span class="c-flag">-Function</span> MenuComplete
+<span class="c-cmd">Set-PSReadLineKeyHandler</span> <span class="c-flag">-Key</span> UpArrow        <span class="c-flag">-Function</span> HistorySearchBackward
+<span class="c-cmd">Set-PSReadLineKeyHandler</span> <span class="c-flag">-Key</span> DownArrow      <span class="c-flag">-Function</span> HistorySearchForward
+<span class="c-cmd">Set-PSReadLineKeyHandler</span> <span class="c-flag">-Key</span> Ctrl+d         <span class="c-flag">-Function</span> DeleteCharOrExit
+
+<span class="c-cmt"># ── Terminal colours (Catppuccin Mocha exact) ──────────</span>
+<span class="c-var">$Host</span>.UI.RawUI.BackgroundColor = <span class="c-str">'Black'</span>   <span class="c-cmt"># let transparency show</span>
+<span class="c-cmd">Set-PSReadLineOption</span> <span class="c-flag">-Colors</span> @{
+  Command            = <span class="c-str">'#89b4fa'</span>   <span class="c-cmt"># Blue</span>
+  Parameter          = <span class="c-str">'#fab387'</span>   <span class="c-cmt"># Peach</span>
+  Operator           = <span class="c-str">'#89dceb'</span>   <span class="c-cmt"># Sky</span>
+  Variable           = <span class="c-str">'#cba6f7'</span>   <span class="c-cmt"># Mauve</span>
+  String             = <span class="c-str">'#a6e3a1'</span>   <span class="c-cmt"># Green</span>
+  Number             = <span class="c-str">'#f9e2af'</span>   <span class="c-cmt"># Yellow</span>
+  Member             = <span class="c-str">'#89dceb'</span>   <span class="c-cmt"># Sky</span>
+  Comment            = <span class="c-str">'#585b70'</span>   <span class="c-cmt"># Overlay0</span>
+  Keyword            = <span class="c-str">'#f38ba8'</span>   <span class="c-cmt"># Red</span>
+  Type               = <span class="c-str">'#94e2d5'</span>   <span class="c-cmt"># Teal</span>
+  InlinePrediction   = <span class="c-str">'#45475a'</span>   <span class="c-cmt"># ghost text</span>
+  ListPrediction     = <span class="c-str">'#89b4fa'</span>
+}
+
+<span class="c-cmt"># ── Modules ────────────────────────────────────────────</span>
+<span class="c-cmd">Import-Module</span> Terminal-Icons           <span class="c-cmt"># file-type icons in ls</span>
+<span class="c-cmd">Import-Module</span> posh-git                  <span class="c-cmt"># git completions</span>
+<span class="c-cmd">Import-Module</span> CompletionPredictor       <span class="c-cmt"># AI-style completions</span>
+
+<span class="c-cmt"># ── Useful aliases ─────────────────────────────────────</span>
+<span class="c-cmd">Set-Alias</span>  vi      nvim
+<span class="c-cmd">Set-Alias</span>  vim     nvim
+<span class="c-cmd">Set-Alias</span>  g       git
+<span class="c-cmd">Set-Alias</span>  cat     bat                   <span class="c-cmt"># install: winget install sharkdp.bat</span>
+<span class="c-cmd">Set-Alias</span>  ls      eza                   <span class="c-cmt"># install: winget install eza-community.eza</span>
+
+<span class="c-cmt"># ── Functions ──────────────────────────────────────────</span>
+<span class="c-kw">function</span> <span class="c-cmd">ll</span>  { <span class="c-cmd">eza</span> <span class="c-flag">-la --icons --git --group-directories-first</span> <span class="c-var">@args</span> }
+<span class="c-kw">function</span> <span class="c-cmd">lt</span>  { <span class="c-cmd">eza</span> <span class="c-flag">--tree --icons -L 2</span> <span class="c-var">@args</span> }
+<span class="c-kw">function</span> <span class="c-cmd">gs</span>  { <span class="c-cmd">git</span> status }
+<span class="c-kw">function</span> <span class="c-cmd">gp</span>  { <span class="c-cmd">git</span> push }
+<span class="c-kw">function</span> <span class="c-cmd">gl</span>  { <span class="c-cmd">git</span> pull }
+<span class="c-kw">function</span> <span class="c-cmd">gc</span>  { param(<span class="c-var">$m</span>) <span class="c-cmd">git</span> commit <span class="c-flag">-m</span> <span class="c-var">$m</span> }
+<span class="c-kw">function</span> <span class="c-cmd">gco</span> { <span class="c-cmd">git</span> checkout <span class="c-var">@args</span> }
+
+<span class="c-cmt"># ── Yazi wrapper (cd on quit) ──────────────────────────</span>
+<span class="c-kw">function</span> <span class="c-cmd">y</span> {
+  <span class="c-var">$tmp</span> = [System.IO.Path]::GetTempFileName()
+  <span class="c-cmd">yazi</span> <span class="c-var">@args</span> <span class="c-flag">--cwd-file</span> <span class="c-var">$tmp</span>
+  <span class="c-var">$cwd</span> = <span class="c-cmd">Get-Content</span> <span class="c-flag">-Raw</span> <span class="c-flag">-Encoding</span> utf8 <span class="c-var">$tmp</span>
+  <span class="c-kw">if</span> (<span class="c-var">$cwd</span> <span class="c-flag">-and</span> <span class="c-var">$cwd</span> <span class="c-flag">-ne</span> <span class="c-var">$PWD</span>.ProviderPath) {
+    <span class="c-cmd">Set-Location</span> <span class="c-flag">-LiteralPath</span> <span class="c-var">$cwd</span>
+  }
+  <span class="c-cmd">Remove-Item</span> <span class="c-flag">-Path</span> <span class="c-var">$tmp</span>
+}</code></pre>
+      </div>
+
+      <div class="callout purple">
+        <span class="callout-icon">★</span>
+        <p>The <strong>y</strong> function is the magic Yazi wrapper — when you quit Yazi with <code>q</code>, your shell automatically <code>cd</code>s into whatever directory you were browsing. This is the correct way to integrate Yazi with any shell.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 6 – YAZI -->
+  <section id="yazi">
+    <div class="section-header">
+      <div class="step-num" style="background:var(--teal);color:var(--crust)">06</div>
+      <div class="section-title">Yazi — File Manager Config</div>
+    </div>
+    <div class="section-body">
+      <p>Yazi config lives at <code>%APPDATA%\yazi\config\</code>. Create <code>yazi.toml</code> and <code>theme.toml</code>:</p>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">toml — %APPDATA%\yazi\config\yazi.toml</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code>[manager]
+ratio          = [1, 3, 4]      <span class="c-cmt"># parent | current | preview</span>
+sort_by        = "natural"
+sort_sensitive = false
+sort_reverse   = false
+show_hidden    = true
+show_symlink   = true
+
+[preview]
+tab_size    = 2
+max_width   = 1200
+max_height  = 900
+image_delay = 30
+
+[opener]
+edit = [
+  { run = 'nvim "%*"', desc = "Neovim", block = true }
+]
+
+[open]
+rules = [
+  { mime = "text/*", use = "edit" },
+  { mime = "application/json", use = "edit" },
+  { mime = "*/javascript", use = "edit" },
+]
+
+[tasks]
+micro_workers    = 5
+macro_workers    = 10
+bizarre_retry    = 5
+image_alloc      = 536870912
+image_bound      = [0, 0]
+suppress_preload = false
+
+[plugin]
+prepend_previewers = [
+  { mime = "text/*", run = "code-highlight" },
+]</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">toml — %APPDATA%\yazi\config\theme.toml (Catppuccin Mocha)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code>[manager]
+cwd = { fg = "#89b4fa" }
+
+hovered         = { fg = "#1e1e2e", bg = "#cba6f7" }
+preview_hovered = { underline = true }
+
+find_keyword  = { fg = "#f9e2af", bold = true, underline = true }
+find_position = { fg = "#fab387", bg = "reset" }
+
+marker_copied  = { fg = "#a6e3a1", bg = "#a6e3a1" }
+marker_cut     = { fg = "#f38ba8", bg = "#f38ba8" }
+marker_marked  = { fg = "#89b4fa", bg = "#89b4fa" }
+marker_selected = { fg = "#cba6f7", bg = "#cba6f7" }
+
+tab_active   = { fg = "#1e1e2e", bg = "#cba6f7" }
+tab_inactive = { fg = "#cdd6f4", bg = "#313244" }
+tab_width    = 1
+
+count_copied   = { fg = "#1e1e2e", bg = "#a6e3a1" }
+count_cut      = { fg = "#1e1e2e", bg = "#f38ba8" }
+count_selected = { fg = "#1e1e2e", bg = "#cba6f7" }
+
+border_symbol = "│"
+border_style  = { fg = "#585b70" }
+
+[status]
+overall = { bg = "#181825" }
+
+separator_open  = ""
+separator_close = ""
+separator_style = { fg = "#313244", bg = "#181825" }
+
+mode_normal = { fg = "#1e1e2e", bg = "#89b4fa", bold = true }
+mode_select = { fg = "#1e1e2e", bg = "#a6e3a1", bold = true }
+mode_unset  = { fg = "#1e1e2e", bg = "#f9e2af", bold = true }
+
+progress_label  = { bold = true }
+progress_normal = { fg = "#89b4fa", bg = "#181825" }
+progress_error  = { fg = "#f38ba8", bg = "#181825" }
+
+permissions_t = { fg = "#89b4fa" }
+permissions_r = { fg = "#f9e2af" }
+permissions_w = { fg = "#f38ba8" }
+permissions_x = { fg = "#a6e3a1" }
+permissions_s = { fg = "#585b70" }
+
+[input]
+border   = { fg = "#89b4fa" }
+title    = { fg = "#89b4fa" }
+value    = { fg = "#cdd6f4" }
+selected = { reversed = true }
+
+[completion]
+border   = { fg = "#cba6f7" }
+active   = { bg = "#313244" }
+inactive = {}
+
+[tasks]
+border  = { fg = "#89b4fa" }
+title   = {}
+hovered = { underline = true }
+
+[which]
+mask            = { bg = "#1e1e2e" }
+cand            = { fg = "#74c7ec" }
+rest            = { fg = "#6c7086" }
+desc            = { fg = "#cba6f7" }
+separator       = "  "
+separator_style = { fg = "#585b70" }</code></pre>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">✓</span>
+        <p>Install the <strong>code-highlight</strong> plugin for syntax-highlighted file previews: <code>ya pack -a yazi-rs/plugins:code-highlight</code>. Also run <code>ya pack -a yazi-rs/plugins:full-border</code> for full border mode.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 7 – TRANSLUCENT GLASS -->
+  <section id="glass">
+    <div class="section-header">
+      <div class="step-num" style="background:var(--sapphire);color:var(--crust)">07</div>
+      <div class="section-title">Translucent Glass Background</div>
+    </div>
+    <div class="section-body">
+      <p>Windows Terminal supports two blur modes. The <strong>Acrylic</strong> effect gives a frosted glass look; <strong>Mica</strong> (Windows 11 only) mirrors your wallpaper.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-label">Acrylic (Win 10 + 11)</div>
+          <div class="card-val" style="color:var(--blue)">useAcrylic: true<br>opacity: 85<br>acrylicOpacity: 0.85</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Mica / Acrylic (Win 11)</div>
+          <div class="card-val" style="color:var(--mauve)">useAcrylic: true<br>experimental.useBackdropBrush: true<br>opacity: 80</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">json — settings.json → profiles → defaults</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="c-prop">"defaults"</span>: {
+  <span class="c-prop">"opacity"</span>: <span class="c-num">85</span>,
+  <span class="c-prop">"useAcrylic"</span>: <span class="c-kw">true</span>,
+  <span class="c-prop">"experimental.useBackdropBrush"</span>: <span class="c-kw">true</span>,   <span class="c-cmt">// Win 11 only</span>
+  <span class="c-prop">"colorScheme"</span>: <span class="c-str">"Catppuccin Mocha"</span>,
+  <span class="c-prop">"font"</span>: { <span class="c-prop">"face"</span>: <span class="c-str">"JetBrainsMono Nerd Font"</span>, <span class="c-prop">"size"</span>: <span class="c-num">13.5</span> }
+}</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠</span>
+        <p>Set opacity between <strong>80–90</strong> for readability. Below 75 and text contrast suffers badly. The <em>experimental.useBackdropBrush</em> key is only supported in Windows Terminal 1.18+.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 8 – MODULES -->
+  <section id="modules">
+    <div class="section-header">
+      <div class="step-num" style="background:var(--flamingo);color:var(--crust)">08</div>
+      <div class="section-title">Extra Modules & Dev Tools</div>
+    </div>
+    <div class="section-body">
+      <p>Install these PowerShell modules once, then they load automatically from your <code>$PROFILE</code>:</p>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">powershell</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="c-cmt"># ── PowerShell Gallery modules ─────────────────────────</span>
+<span class="c-cmd">Install-Module</span> <span class="c-flag">-Name</span> PSReadLine           <span class="c-flag">-Force</span> <span class="c-flag">-SkipPublisherCheck</span>
+<span class="c-cmd">Install-Module</span> <span class="c-flag">-Name</span> Terminal-Icons       <span class="c-flag">-Force</span>   <span class="c-cmt"># icons in ls</span>
+<span class="c-cmd">Install-Module</span> <span class="c-flag">-Name</span> posh-git             <span class="c-flag">-Force</span>   <span class="c-cmt"># git tab complete</span>
+<span class="c-cmd">Install-Module</span> <span class="c-flag">-Name</span> CompletionPredictor  <span class="c-flag">-Force</span>   <span class="c-cmt"># smart predictions</span>
+<span class="c-cmd">Install-Module</span> <span class="c-flag">-Name</span> PSFzf               <span class="c-flag">-Force</span>   <span class="c-cmt"># fzf integration</span>
+
+<span class="c-cmt"># ── CLI tools (winget) ─────────────────────────────────</span>
+<span class="c-cmd">winget</span> install <span class="c-str">sharkdp.bat</span>        <span class="c-cmt"># better cat with syntax highlight</span>
+<span class="c-cmd">winget</span> install <span class="c-str">eza-community.eza</span>  <span class="c-cmt"># better ls with icons</span>
+<span class="c-cmd">winget</span> install <span class="c-str">junegunn.fzf</span>       <span class="c-cmt"># fuzzy finder (Ctrl+T in PS)</span>
+<span class="c-cmd">winget</span> install <span class="c-str">dandavison.delta</span>   <span class="c-cmt"># better git diff</span>
+<span class="c-cmd">winget</span> install <span class="c-str">cli.cli</span>            <span class="c-cmt"># GitHub CLI (gh)</span>
+
+<span class="c-cmt"># ── After installing PSFzf, add to $PROFILE: ──────────</span>
+<span class="c-cmd">Import-Module</span> PSFzf
+<span class="c-cmd">Set-PsFzfOption</span> <span class="c-flag">-PSReadlineChordProvider</span> <span class="c-str">'Ctrl+t'</span> <span class="c-flag">-PSReadlineChordReverseHistory</span> <span class="c-str">'Ctrl+r'</span></code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-top"><span class="code-lang">powershell — bat + delta git config (~/.gitconfig)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code><span class="c-cmt"># Add to ~/.gitconfig for delta as pager</span>
+[core]
+  pager = delta
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate    = true
+  side-by-side = true
+  syntax-theme = Catppuccin-mocha
+  line-numbers = true</code></pre>
+      </div>
+
+      <hr>
+
+      <p style="margin-top:.5rem">That's everything. Reload your profile with <code>. $PROFILE</code> and enjoy the setup!</p>
+
+      <div class="tags" style="margin-top:.5rem">
+        <span class="tag" style="background:rgba(137,180,250,.15);color:var(--blue)">PSReadLine</span>
+        <span class="tag" style="background:rgba(203,166,247,.15);color:var(--mauve)">Oh My Posh</span>
+        <span class="tag" style="background:rgba(166,227,161,.15);color:var(--green)">Yazi</span>
+        <span class="tag" style="background:rgba(148,226,213,.15);color:var(--teal)">Terminal-Icons</span>
+        <span class="tag" style="background:rgba(249,226,175,.15);color:var(--yellow)">bat</span>
+        <span class="tag" style="background:rgba(250,179,135,.15);color:var(--peach)">eza</span>
+        <span class="tag" style="background:rgba(116,199,236,.15);color:var(--sapphire)">fzf</span>
+        <span class="tag" style="background:rgba(235,160,172,.15);color:var(--maroon)">delta</span>
+        <span class="tag" style="background:rgba(137,220,235,.15);color:var(--sky)">posh-git</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+</script>
+</body>
+</html>
