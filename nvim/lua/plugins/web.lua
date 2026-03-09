@@ -154,7 +154,6 @@ return {
 
   -- Terminal
   -- <leader>t  → full-page terminal (PowerShell 7)
-  -- <C-t>      → floating terminal (PowerShell 7)
   {
     "akinsho/toggleterm.nvim",
     version = "*",
@@ -175,13 +174,8 @@ return {
         },
       })
 
-      -- <leader>t → full-page (tab) terminal
+      -- <leader-t> → floating terminal
       map("n", "<leader>t", function()
-        require("toggleterm").toggle(1, nil, nil, "tab")
-      end, { desc = "Terminal: full page (tab)" })
-
-      -- <C-t> → floating terminal
-      map("n", "<C-t>", function()
         require("toggleterm").toggle(2, nil, nil, "float")
       end, { desc = "Terminal: floating" })
 
