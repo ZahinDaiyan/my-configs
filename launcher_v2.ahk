@@ -1,6 +1,31 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 Persistent
+;══════════════════════════════════════
+; Quality of life
+;══════════════════════════════════════
+
+CapsLock::Return
+
+::@@::zahiindaiyan@gmail.com
+
+
+;══════════════════════════════════════
+; Vim-style navigation (hold CapsLock)
+;══════════════════════════════════════
+
+CapsLock & h::Send("{Left}")
+CapsLock & j::Send("{Down}")
+CapsLock & k::Send("{Up}")
+CapsLock & l::Send("{Right}")
+CapsLock & w::Send("^{Backspace}")
+CapsLock & d::Send("{Delete}")
+CapsLock & u::Send("^z")
+
+;══════════════════════════════════════
+; Code Snippets
+;══════════════════════════════════════
+
 
 ; ═══════════════════════════════════════════════════════════════════════════════
 ;  APEX LAUNCHER  v2.0
@@ -16,12 +41,12 @@ Persistent
 global LAUNCH_KEY := "!Space"
 
 ; ── WINDOW GEOMETRY ───────────────────────────────────────────────────────────
-global WIN_W      := 620
+global WIN_W      := 720
 global WIN_H      := 62         ; height with no results
 global RESULT_H   := 44
 global MAX_RES    := 8
 global INPUT_PAD  := 14         ; left padding for input text
-global ICON_SIZE  := 24
+global ICON_SIZE  := 20
 
 ; ── COLORS ────────────────────────────────────────────────────────────────────
 global C_BG        := 0x0e0e0f
