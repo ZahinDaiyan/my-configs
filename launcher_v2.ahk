@@ -5,7 +5,7 @@ Persistent
 ; Quality of life
 ;══════════════════════════════════════
 
-CapsLock::Return
+SetCapsLockState "AlwaysOff"
 
 ::@@::zahiindaiyan@gmail.com
 
@@ -91,7 +91,7 @@ global Builtins := Map(
     "shutdown",       Map("cmd", "shutdown /s /t 0",                         "desc", "Shut down"),
     "restart",        Map("cmd", "shutdown /r /t 0",                         "desc", "Restart"),
     "logout",         Map("cmd", "shutdown /l",                              "desc", "Log out"),
-    "cmd",            Map("cmd", "cmd",                                      "desc", "Command Prompt"),
+    "cmd",            Map("cmd", "pwsh",                                      "desc", "Powershell 7 Preview"),
     "powershell",     Map("cmd", "powershell",                               "desc", "PowerShell"),
     "terminal",       Map("cmd", "wt",                                       "desc", "Windows Terminal"),
     "notepad",        Map("cmd", "notepad",                                  "desc", "Text editor"),
