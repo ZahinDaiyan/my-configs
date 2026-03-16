@@ -13,11 +13,6 @@ return {
     name     = "catppuccin",
     priority = 1000,
     config   = function()
-      -- Explicit setup so TransparentDisable always returns to a solid background
-      -- and doesn't fight with transparent.nvim's overrides
-      require("catppuccin").setup({
-        transparent_background = false,
-      })
       vim.cmd.colorscheme("catppuccin")
     end,
   },
@@ -40,6 +35,7 @@ return {
       })
       vim.cmd("TransparentEnable")
 
+      -- Toggle transparent vs solid (Catppuccin Mocha) background
       local transparent_on = true
       map("n", "<leader>bg", function()
         transparent_on = not transparent_on
@@ -66,90 +62,6 @@ return {
           lualine_c = { { "filename", path = 1 } },
         },
       })
-    end,
-  },
-
-  -- Which-key: shows available <leader> keybindings in a popup
-  {
-    "folke/which-key.nvim",
-    event = "VeryLazy",
-    config = function()
-      local wk = require("which-key")
-      wk.setup({
-        preset = "modern",
-      })
-
-      -- Register group labels so the popup is readable
-      wk.add({
-        { "<leader>f",  group = "Find (Telescope)" },
-        { "<leader>g",  group = "Git" },
-        { "<leader>r",  group = "Refactor / Rename" },
-        { "<leader>c",  group = "Code action" },
-
-        -- Individual mappings with descriptions
-        { "<leader>e",  desc = "File tree toggle" },
-        { "<leader>t",  desc = "Terminal: floating" },
-        { "<leader>w",  desc = "Save file" },
-        { "<leader>q",  desc = "Quit" },
-        { "<leader>v",  desc = "Vertical split" },
-        { "<leader>h",  desc = "Horizontal split" },
-        { "<leader>bg", desc = "Toggle transparent background" },
-        { "<leader>ff", desc = "Format file (Prettier)" },
-
-        -- Telescope
-        { "<leader>fg", desc = "Live grep" },
-        { "<leader>fb", desc = "Buffers" },
-        { "<leader>fh", desc = "Help tags" },
-
-        -- Git
-        { "<leader>gp", desc = "Preview hunk" },
-        { "<leader>gs", desc = "Stage hunk" },
-        { "<leader>gr", desc = "Reset hunk" },
-        { "<leader>gb", desc = "Toggle line blame" },
-
-        -- LSP
-        { "<leader>rn", desc = "Rename symbol" },
-        { "<leader>ca", desc = "Code action" },
-      })
-    end,
-  },
-
-  -- Indent guides (pairs with Treesitter)
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    main  = "ibl",
-    event = "BufReadPost",
-    config = function()
-      -- Use Catppuccin's surface1 color for subtle lines
-      local hooks = require("ibl.hooks")
-      hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-        vim.api.nvim_set_hl(0, "IblIndent",    { fg = "#313244" }) -- Catppuccin Mocha surface1
-        vim.api.nvim_set_hl(0, "IblScope",     { fg = "#585b70" }) -- Catppuccin Mocha overlay0
-      end)
-
-      require("ibl").setup({
-        indent = {
-          char      = "│",
-          highlight = "IblIndent",
-        },
-        scope = {
-          enabled   = true,
-          highlight = "IblScope",
-          -- Show scope underline at the start/end of the current block
-          show_start = true,
-          show_end   = false,
-        },
-      })
-    end,
-  },
-
-  -- Surround: cs"' ysiw( ds{ etc. — very useful for HTML/JSX attribute editing
-  {
-    "kylechui/nvim-surround",
-    version = "*",
-    event   = "VeryLazy",
-    config  = function()
-      require("nvim-surround").setup()
     end,
   },
 
@@ -207,7 +119,7 @@ return {
     end,
   },
 
-  -- Formatter (Prettier)
+  -- Formatter (Prettier) — format manually with <leader>ff
   {
     "stevearc/conform.nvim",
     config = function()
@@ -270,17 +182,15 @@ return {
     end,
   },
 
-  -- Snippets
+  -- Snippets (declared once here; cmp-luasnip pulls LuaSnip as a dep automatically)
   { "L3MON4D3/LuaSnip" },
   { "saadparwaiz1/cmp_luasnip" },
 
-  -- Autocomplete — now includes buffer words and file paths
+  -- Autocomplete
   {
     "hrsh7th/nvim-cmp",
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-buffer",   -- complete from words in open buffers
-      "hrsh7th/cmp-path",     -- complete file-system paths (great for src= / href=)
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
     },
@@ -322,62 +232,21 @@ return {
           end, { "i", "s" }),
         },
 
-        sources = cmp.config.sources(
-          -- Group 1: LSP + snippets (highest priority)
-          {
-            { name = "nvim_lsp" },
-            { name = "luasnip"  },
-          },
-          -- Group 2: shown only when group 1 yields nothing
-          {
-            { name = "buffer", keyword_length = 3 },
-            { name = "path"   },
-          }
-        ),
-      })
-    end,
-  },
-
-  -- Mason: install/update LSP servers from inside Neovim with :Mason
-  {
-    "williamboman/mason.nvim",
-    build  = ":MasonUpdate",
-    config = function()
-      require("mason").setup()
-    end,
-  },
-
-  -- Bridge between Mason and nvim-lspconfig — auto-installs the servers below
-  {
-    "williamboman/mason-lspconfig.nvim",
-    dependencies = {
-      "williamboman/mason.nvim",
-      "neovim/nvim-lspconfig",
-    },
-    config = function()
-      require("mason-lspconfig").setup({
-        -- These will be auto-installed if not already present
-        ensure_installed = {
-          "ts_ls",
-          "html",
-          "cssls",
-          "jsonls",
-          "emmet_language_server",
+        sources = {
+          { name = "nvim_lsp" },
+          { name = "luasnip"  },
         },
-        automatic_installation = true,
       })
     end,
   },
 
-  -- LSP (mason-lspconfig handles installation; this handles config)
+  -- LSP
   {
     "neovim/nvim-lspconfig",
-    dependencies = {
-      "williamboman/mason-lspconfig.nvim",
-    },
     config = function()
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
+      -- Emmet (install via Mason or npm: npm i -g @olrtg/emmet-language-server)
       vim.lsp.config("emmet_language_server", {
         filetypes    = { "html", "css", "javascriptreact", "typescriptreact" },
         capabilities = capabilities,
@@ -398,7 +267,7 @@ return {
     end,
   },
 
-  -- Noice: floating cmdline
+  -- Noice: floating cmdline when typing : / ? — notifications go to mini (no popups)
   {
     "folke/noice.nvim",
     event        = "VeryLazy",
@@ -410,16 +279,16 @@ return {
       require("noice").setup({
         cmdline = {
           enabled = true,
-          view    = "cmdline_popup",
+          view    = "cmdline_popup", -- floating cmdline box
         },
         messages = {
-          enabled = false,
+          enabled = false, -- don't hijack normal messages
         },
         popupmenu = {
-          enabled = true,
+          enabled = true, -- floating : completion menu
         },
         notify = {
-          enabled = false,
+          enabled = false, -- no floating notification popups
         },
         lsp = {
           progress     = { enabled = false },
@@ -428,6 +297,7 @@ return {
           message      = { enabled = false },
         },
         routes = {
+          -- Send everything noice would normally pop up to mini (bottom-right corner, silent)
           {
             filter = { event = "notify" },
             opts   = { skip = true },
@@ -437,7 +307,7 @@ return {
     end,
   },
 
-  -- Live server — now accepts an optional port argument: :LiveSync 8080
+  -- Live server (auto-save on change + :LiveSync / :LiveStop commands)
   {
     dir    = "~",
     name   = "browsersync-setup",
@@ -445,27 +315,17 @@ return {
     config = function()
       local sync_job_id = nil
 
-      vim.api.nvim_create_user_command("LiveSync", function(opts)
+      vim.api.nvim_create_user_command("LiveSync", function()
         if sync_job_id then
           vim.notify("LiveSync is already running!", vim.log.levels.WARN)
           return
         end
-
-        -- Use the supplied port or fall back to 3000
-        local port = (opts.args ~= "") and opts.args or "3000"
-
-        sync_job_id = vim.fn.jobstart("live-server --port=" .. port, {
+        sync_job_id = vim.fn.jobstart("live-server --port=3000", {
           detach = false,
           cwd    = vim.fn.getcwd(),
         })
-        vim.notify(
-          string.format("LiveSync started on port %s from: %s", port, vim.fn.getcwd()),
-          vim.log.levels.INFO
-        )
-      end, {
-        nargs = "?",   -- zero or one argument
-        desc  = "Start live-server (optional port, default 3000)",
-      })
+        vim.notify("LiveSync started from: " .. vim.fn.getcwd(), vim.log.levels.INFO)
+      end, {})
 
       vim.api.nvim_create_user_command("LiveStop", function()
         if sync_job_id then
@@ -477,7 +337,7 @@ return {
         end
       end, {})
 
-      -- Debounced auto-save for web files
+      -- Debounced auto-save for web files (triggers live-server reload)
       vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
         pattern  = { "*.html", "*.css", "*.js" },
         callback = function()

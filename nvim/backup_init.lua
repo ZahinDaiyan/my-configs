@@ -7,15 +7,15 @@ vim.g.maplocalleader = " "
 -- ======================
 -- Basic Options
 -- ======================
-vim.opt.number         = true
+vim.opt.number = true
 vim.opt.relativenumber = true
-vim.opt.splitright     = true
-vim.opt.splitbelow     = true
-vim.opt.termguicolors  = true
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+vim.opt.termguicolors = true
 
-vim.opt.expandtab   = true
-vim.opt.tabstop     = 2
-vim.opt.shiftwidth  = 2
+vim.opt.expandtab = true
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
 vim.opt.softtabstop = 2
 
 -- ======================
@@ -30,19 +30,18 @@ map("n", "<C-h>", "<C-w>h")
 map("n", "<C-j>", "<C-w>j")
 map("n", "<C-k>", "<C-w>k")
 map("n", "<C-l>", "<C-w>l")
-map("n", "<leader>w", "<cmd>w<cr>")
-map("n", "<leader>q", "<cmd>q<cr>")
-map("t", "<Esc>",     "<C-\\><C-n>")
-
--- <C-t> opens a quick bottom terminal; <leader>t is handled by toggleterm in web.lua
+map("n", "<leader>w", "<cmd>w<cr>" ) 
+map("n", "<leader>q", "<cmd>q<cr>" )
+map("t", "<Esc>", "<C-\\><C-n>")
 map("n", "<C-t>", "<cmd>botright split | terminal<cr><cmd>resize 15<cr>", { desc = "Open terminal bottom" })
+map("n", "<leader>t", "<cmd>botright split | terminal<cr><cmd>resize 15<cr>", { desc = "Open terminal bottom" })
 
 -- ======================
 -- LSP Keymaps
 -- ======================
-map("n", "gd",         vim.lsp.buf.definition)
-map("n", "gr",         vim.lsp.buf.references)
-map("n", "K",          vim.lsp.buf.hover)
+map("n", "gd", vim.lsp.buf.definition)
+map("n", "gr", vim.lsp.buf.references)
+map("n", "K",  vim.lsp.buf.hover)
 map("n", "<leader>rn", vim.lsp.buf.rename)
 map("n", "<leader>ca", vim.lsp.buf.code_action)
 
@@ -51,6 +50,11 @@ map("n", "<leader>ca", vim.lsp.buf.code_action)
 -- ======================
 vim.opt.cmdheight = 0
 
+vim.notify = function(msg, level)
+  if level == vim.log.levels.ERROR then
+    vim.cmd("echohl ErrorMsg | echo " .. vim.fn.shellescape(msg) .. " | echohl None")
+  end
+end
 -- ======================
 -- Bootstrap lazy.nvim
 -- ======================
@@ -70,5 +74,6 @@ vim.opt.rtp:prepend(lazypath)
 -- ======================
 -- Load plugins
 -- Lazy auto-discovers all files inside lua/plugins/
+-- To disable CP tools, comment out the line in lazy.setup
 -- ======================
 require("lazy").setup("plugins")

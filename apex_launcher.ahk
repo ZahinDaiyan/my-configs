@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 Persistent
+
 ;══════════════════════════════════════
 ; Quality of life
 ;══════════════════════════════════════
@@ -12,8 +13,6 @@ SetCapsLockState "AlwaysOff"
 ::@git::https://www.github.com/ZahinDaiyan
 ::@mail::https://www.gmail.com
 ::@cp::https://codeforces.com/profile/Zahin_Daiyan
-
-
 ::@dev::cd D:\dev\webdev
 ::@nfig::cd C:\Users\zahii\AppData\Local\nvim
 
@@ -33,31 +32,24 @@ CapsLock & u::Send("^z")
 ; Code Snippets
 ;══════════════════════════════════════
 
-
-::forloop::for (int i = 0; i < n; ++i)
-
-
+::forloop::for (int i = 0; i < n; ++i) 
 
 ; ═══════════════════════════════════════════════════════════════════════════════
-;  APEX LAUNCHER  v2.0
+;  APEX LAUNCHER  v2.1  (slim edition)
 ;  Alt+Space  →  open/close
 ;  Type       →  fuzzy search apps, commands, URLs, math
 ;  ↑ ↓ Tab    →  navigate results
-;  Enter      →  launch selection
+;  Enter      →  launch / copy math result
 ;  Esc        →  close
-;  Click      →  launch clicked result
 ; ═══════════════════════════════════════════════════════════════════════════════
 
-; ── LAUNCH HOTKEY ─────────────────────────────────────────────────────────────
 global LAUNCH_KEY := "!Space"
 
 ; ── WINDOW GEOMETRY ───────────────────────────────────────────────────────────
-global WIN_W      := 720
-global WIN_H      := 62         ; height with no results
-global RESULT_H   := 44
-global MAX_RES    := 8
-global INPUT_PAD  := 14         ; left padding for input text
-global ICON_SIZE  := 20
+global WIN_W    := 720
+global WIN_H    := 62
+global RESULT_H := 44
+global MAX_RES  := 8
 
 ; ── COLORS ────────────────────────────────────────────────────────────────────
 global C_BG        := 0x0e0e0f
@@ -68,78 +60,68 @@ global C_FG        := 0xdde1ec
 global C_FG_DIM    := 0x52566a
 global C_FG_SEL    := 0xffffff
 global C_ACCENT    := 0x5b9cf6
-global C_ACCENT2   := 0xa78bfa
-global C_GREEN     := 0x4ade80
-global C_ORANGE    := 0xfb923c
 global C_INPUT_BG  := 0x0e0e0f
 
-; ── BADGE COLORS PER KIND ─────────────────────────────────────────────────────
 global KIND_COLORS := Map(
-    "cmd",   0x5b9cf6,
-    "app",   0x4ade80,
-    "url",   0xfb923c,
-    "math",  0xa78bfa,
-    "file",  0x38bdf8
+    "cmd",  0x5b9cf6,
+    "app",  0x4ade80,
+    "url",  0xfb923c,
+    "math", 0xa78bfa
 )
 global KIND_ICONS := Map(
-    "cmd",   "❯",
-    "app",   "◈",
-    "url",   "⊕",
-    "math",  "∑",
-    "file",  "◻"
+    "cmd",  "❯",
+    "app",  "◈",
+    "url",  "⊕",
+    "math", "∑"
 )
-
-; ── EXTRA SEARCH FOLDERS ──────────────────────────────────────────────────────
-global EXTRA_DIRS := [
-    EnvGet("USERPROFILE") "\Desktop",
-    EnvGet("USERPROFILE") "\Downloads"
-]
 
 ; ── BUILT-IN COMMANDS ─────────────────────────────────────────────────────────
 global Builtins := Map(
+    "brave",          Map("cmd", "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe", "desc", "Brave Browser"),
+    "chrome",         Map("cmd", "C:\Program Files\Google\Chrome\Application\chrome.exe",              "desc", "Google Chrome"),
+    "nvim",           Map("cmd", "nvim",                                     "desc", "Neovim"),
+    "cmd",            Map("cmd", "pwsh -NoLogo -WorkingDirectory ~",         "desc", "PowerShell 7"),
+    "powershell",     Map("cmd", "powershell",                               "desc", "PowerShell 5"),
+    "terminal",       Map("cmd", "wt",                                       "desc", "Windows Terminal"),
+    "explorer",       Map("cmd", "explorer",                                 "desc", "File Explorer"),
+    "notepad",        Map("cmd", "notepad",                                  "desc", "Notepad"),
     "lock",           Map("cmd", "LockWorkStation",                          "desc", "Lock the screen"),
     "sleep",          Map("cmd", "rundll32.exe powrprof.dll,SetSuspendState 0,1,0", "desc", "Sleep the PC"),
     "shutdown",       Map("cmd", "shutdown /s /t 0",                         "desc", "Shut down"),
     "restart",        Map("cmd", "shutdown /r /t 0",                         "desc", "Restart"),
     "logout",         Map("cmd", "shutdown /l",                              "desc", "Log out"),
-    "cmd",            Map("cmd", "pwsh",                                      "desc", "Powershell 7 Preview"),
-    "powershell",     Map("cmd", "powershell",                               "desc", "PowerShell"),
-    "terminal",       Map("cmd", "wt",                                       "desc", "Windows Terminal"),
-    "notepad",        Map("cmd", "notepad",                                  "desc", "Text editor"),
-    "explorer",       Map("cmd", "explorer",                                 "desc", "File Explorer"),
     "task manager",   Map("cmd", "taskmgr",                                  "desc", "Task Manager"),
     "taskmgr",        Map("cmd", "taskmgr",                                  "desc", "Task Manager"),
-    "regedit",        Map("cmd", "regedit",                                  "desc", "Registry Editor"),
     "calculator",     Map("cmd", "calc",                                     "desc", "Calculator"),
-    "paint",          Map("cmd", "mspaint",                                  "desc", "MS Paint"),
     "settings",       Map("cmd", "ms-settings:",                             "desc", "Windows Settings"),
     "snip",           Map("cmd", "SnippingTool",                             "desc", "Snipping Tool"),
     "control panel",  Map("cmd", "control",                                  "desc", "Control Panel"),
     "device manager", Map("cmd", "devmgmt.msc",                              "desc", "Device Manager"),
-    "services",       Map("cmd", "services.msc",                             "desc", "Services"),
-    "event viewer",   Map("cmd", "eventvwr.msc",                             "desc", "Event Viewer"),
     "disk management",Map("cmd", "diskmgmt.msc",                             "desc", "Disk Management"),
     "winver",         Map("cmd", "winver",                                   "desc", "Windows version"),
-    "hosts",          Map("cmd", "notepad C:\Windows\System32\drivers\etc\hosts", "desc", "Edit hosts file"),
     "env",            Map("cmd", "rundll32.exe sysdm.cpl,EditEnvironmentVariables", "desc", "Environment variables"),
-    "clipboard",      Map("cmd", "ms-settings:clipboard",                    "desc", "Clipboard settings"),
     "store",          Map("cmd", "ms-windows-store:",                        "desc", "Microsoft Store"),
-    "wsl",            Map("cmd", "wsl",                                      "desc", "Windows Subsystem for Linux")
+    "wsl",            Map("cmd", "wsl",                                      "desc", "Windows Subsystem for Linux"),
+    "regedit",        Map("cmd", "regedit",                                  "desc", "Registry Editor"),
+    "hosts",          Map("cmd", "notepad C:\Windows\System32\drivers\etc\hosts", "desc", "Edit hosts file"),
+    "services",       Map("cmd", "services.msc",                             "desc", "Services"),
+    "paint",          Map("cmd", "mspaint",                                  "desc", "MS Paint")
 )
 
-; ── LAUNCH HISTORY  (frequency map  label → count) ────────────────────────────
-global gHistory    := Map()
+; ── HISTORY ───────────────────────────────────────────────────────────────────
+global gHistory     := Map()
 global HISTORY_FILE := A_AppData "\ApexLauncher\history.ini"
 
 ; ── STATE ─────────────────────────────────────────────────────────────────────
-global gResults    := []
-global gSel        := 0
-global gGui        := 0
-global gEdit       := 0
-global gRows       := []        ; array of row objects {bg, icon, label, desc, badge}
-global gDebounce   := 0
-global gVisible    := false
-global gLastQuery  := ""
+global gResults  := []
+global gSel      := 0
+global gGui      := 0
+global gEdit     := 0
+global gRows     := []
+global gDebounce := 0
+global gVisible  := false
+global gLastQuery := ""
+global gSepCtrl  := 0
 
 ; ═══════════════════════════════════════════════════════════════════════════════
 ;  STARTUP
@@ -159,7 +141,7 @@ ToggleLauncher(*) {
 }
 
 ; ═══════════════════════════════════════════════════════════════════════════════
-;  BUILD GUI  (called once)
+;  BUILD GUI
 ; ═══════════════════════════════════════════════════════════════════════════════
 BuildGui() {
     global gGui, gEdit, gRows
@@ -169,17 +151,14 @@ BuildGui() {
     gGui.MarginX   := 0
     gGui.MarginY   := 0
 
-    ; Search icon
     gGui.SetFont("s15 c" Format("{:06X}", C_ACCENT), "Segoe UI Symbol")
     gGui.Add("Text", "x14 y16 w26 h30 +BackgroundTrans", "⌕")
 
-    ; Input field
     gGui.SetFont("s13 c" Format("{:06X}", C_FG) " q5", "Segoe UI")
     gEdit := gGui.Add("Edit",
         "x46 y13 w" (WIN_W - 62) " h36 -E0x200 Background" Format("{:06X}", C_INPUT_BG))
     gEdit.OnEvent("Change", OnTypeDebounce)
 
-    ; Keyboard hooks (active only when launcher window is focused)
     HotIfWinActive "ApexLauncher ahk_class AutoHotkeyGUI"
     HotKey "Enter",  OnEnter
     HotKey "Escape", (*) => HideLauncher()
@@ -206,7 +185,6 @@ ShowLauncher(*) {
     gLastQuery  := ""
     ClearResults()
 
-    ; Center on the active monitor
     MonitorGetWorkArea(MonitorGetPrimary(), &mL, &mT, &mR, &mB)
     mW := mR - mL
     mH := mB - mT
@@ -227,14 +205,14 @@ HideLauncher(*) {
 }
 
 ; ═══════════════════════════════════════════════════════════════════════════════
-;  DEBOUNCED INPUT
+;  INPUT HANDLING
 ; ═══════════════════════════════════════════════════════════════════════════════
 OnTypeDebounce(*) {
     global gDebounce
     if gDebounce
         SetTimer gDebounce, 0
     gDebounce := ProcessInput.Bind()
-    SetTimer gDebounce, -80     ; 80ms debounce
+    SetTimer gDebounce, -80
 }
 
 ProcessInput(*) {
@@ -251,32 +229,29 @@ ProcessInput(*) {
 }
 
 ; ═══════════════════════════════════════════════════════════════════════════════
-;  SEARCH ENGINE
+;  SEARCH
 ; ═══════════════════════════════════════════════════════════════════════════════
 DoSearch(q) {
-    global Builtins, MAX_RES, gHistory, EXTRA_DIRS
+    global Builtins, MAX_RES, gHistory
     results := []
     qL      := StrLower(q)
 
-    ; ── 1. Math expression ──────────────────────────────────────────────────
+    ; ── 1. Math ─────────────────────────────────────────────────────────────
     mathVal := TryMath(q)
     if (mathVal != "") {
         results.Push(Map(
-            "label", mathVal,
-            "desc",  "= " q,
+            "label", q " = " mathVal,
+            "desc",  "Press Enter to copy result",
             "path",  mathVal,
             "kind",  "math",
             "score", 100
         ))
     }
 
-    ; ── 2. URL / path detection ─────────────────────────────────────────────
+    ; ── 2. URL detection ────────────────────────────────────────────────────
     if IsUrl(q) {
         url := (SubStr(q, 1, 4) = "http") ? q : "https://" q
-        results.Push(Map("label", q, "desc", "Open URL", "path", url, "kind", "url", "score", 90))
-    }
-    if IsLocalPath(q) {
-        results.Push(Map("label", q, "desc", "Open path", "path", q, "kind", "file", "score", 88))
+        results.Push(Map("label", url, "desc", "Open URL", "path", url, "kind", "url", "score", 90))
     }
 
     ; ── 3. Built-in commands ────────────────────────────────────────────────
@@ -292,14 +267,11 @@ DoSearch(q) {
             ))
     }
 
-    ; ── 4. Start Menu .lnk files ────────────────────────────────────────────
+    ; ── 4. Start Menu apps ──────────────────────────────────────────────────
     dirs := [
         EnvGet("APPDATA")     "\Microsoft\Windows\Start Menu\Programs",
         EnvGet("PROGRAMDATA") "\Microsoft\Windows\Start Menu\Programs"
     ]
-    for d in EXTRA_DIRS
-        dirs.Push(d)
-
     seen := Map()
     for dir in dirs {
         loop files dir "\*.lnk", "R" {
@@ -320,46 +292,15 @@ DoSearch(q) {
         }
     }
 
-    ; ── 5. Also search .exe on Desktop & Downloads ──────────────────────────
-    for dir in EXTRA_DIRS {
-        loop files dir "\*.exe" {
-            cleanName := StrReplace(A_LoopFileName, ".exe", "")
-            sc := FuzzyScore(StrLower(cleanName), qL)
-            if (sc > 0)
-                results.Push(Map(
-                    "label", cleanName,
-                    "desc",  dir,
-                    "path",  A_LoopFileFullPath,
-                    "kind",  "app",
-                    "score", sc + GetHistoryBonus(cleanName)
-                ))
-        }
-    }
-
-    ; ── 6. Sort by score descending ─────────────────────────────────────────
+    ; ── 5. Sort and trim ────────────────────────────────────────────────────
     results := SortResults(results)
-
-    ; ── 7. Trim to MAX_RES - 1, then append Google search ───────────────────
-    while results.Length >= MAX_RES
+    while results.Length > MAX_RES
         results.RemoveAt(results.Length)
-
-    results.Push(Map(
-        "label", 'Search  "' q '"',
-        "desc",  "google.com",
-        "path",  "https://www.google.com/search?q=" q,
-        "kind",  "url",
-        "score", 0
-    ))
 
     return results
 }
 
 ; ── Fuzzy scoring ─────────────────────────────────────────────────────────────
-;   100 = exact match
-;    80 = prefix match
-;    60 = substring match
-;    40 = subsequence (every char of query appears in order)
-;     0 = no match
 FuzzyScore(haystack, needle) {
     h := StrLower(haystack)
     n := StrLower(needle)
@@ -369,12 +310,11 @@ FuzzyScore(haystack, needle) {
         return 80
     if InStr(h, n)
         return 60
-    ; subsequence check — every char of needle must appear in order in haystack
     pos := 1
     nLen := StrLen(n)
     i := 1
     while i <= nLen {
-        ch  := SubStr(n, i, 1)
+        ch    := SubStr(n, i, 1)
         found := InStr(h, ch,, pos)
         if !found
             return 0
@@ -385,13 +325,12 @@ FuzzyScore(haystack, needle) {
 }
 
 SortResults(arr) {
-    ; simple insertion sort (list is small)
     loop arr.Length - 1 {
         i := A_Index + 1
         while i > 1 && arr[i]["score"] > arr[i-1]["score"] {
-            tmp        := arr[i]
-            arr[i]     := arr[i-1]
-            arr[i-1]   := tmp
+            tmp      := arr[i]
+            arr[i]   := arr[i-1]
+            arr[i-1] := tmp
             i--
         }
     }
@@ -400,38 +339,32 @@ SortResults(arr) {
 
 ; ── Math evaluator ────────────────────────────────────────────────────────────
 TryMath(q) {
-    ; Only attempt if it looks like a math expression
     if !RegExMatch(q, "^[\d\s\+\-\*\/\^\(\)\.%]+$")
         return ""
     try {
-        ; Use WSH to evaluate safely
         sc := ComObject("ScriptControl")
         sc.Language := "JScript"
         val := sc.Eval(q)
-        return String(val)
+        result := String(val)
+        ; Don't show math result if it's just the same as input (e.g. single number)
+        if (result = Trim(q))
+            return ""
+        return result
     }
     return ""
 }
 
-; ── URL / path detection ──────────────────────────────────────────────────────
+; ── URL detection ─────────────────────────────────────────────────────────────
 IsUrl(q) {
     return RegExMatch(q, "i)^(https?://|www\.|[\w-]+\.(com|net|org|io|dev|ai|co|app|me|tv|gg)(/|$))")
         || RegExMatch(q, "^localhost(:\d+)?")
-        || RegExMatch(q, "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-}
-
-IsLocalPath(q) {
-    return RegExMatch(q, "^[a-zA-Z]:\\") || SubStr(q, 1, 2) = "\\"
 }
 
 ; ═══════════════════════════════════════════════════════════════════════════════
 ;  RESULTS UI
 ; ═══════════════════════════════════════════════════════════════════════════════
-global gSepCtrl := 0   ; the separator line control (destroyed on clear)
-
 ClearResults() {
     global gGui, gRows, gResults, gSel, gSepCtrl
-
     for row in gRows {
         try row.bg.Destroy()
         try row.iconCtrl.Destroy()
@@ -446,14 +379,12 @@ ClearResults() {
     gRows    := []
     gResults := []
     gSel     := 0
-
     if IsObject(gGui)
         gGui.Move(,, WIN_W, WIN_H)
 }
 
 ShowResults(results) {
     global gGui, gRows, gResults, gSel, gSepCtrl
-
     ClearResults()
     if !results.Length
         return
@@ -461,7 +392,6 @@ ShowResults(results) {
     gResults := results
     gSel     := 1
 
-    ; Separator line
     gSepCtrl := gGui.Add("Progress", "x0 y" WIN_H " w" WIN_W " h1 Background" Format("{:06X}", C_SEPARATOR))
     gSepCtrl.Value := 0
 
@@ -472,30 +402,25 @@ ShowResults(results) {
         kColor := KIND_COLORS.Has(kind) ? KIND_COLORS[kind] : C_FG_DIM
         kIcon  := KIND_ICONS.Has(kind)  ? KIND_ICONS[kind]  : "·"
 
-        ; Row background
         bg := gGui.Add("Progress",
             "x0 y" yPos " w" WIN_W " h" RESULT_H " Background" Format("{:06X}", C_BG_ITEM))
         bg.Value := 0
 
-        ; Kind icon
         gGui.SetFont("s11 c" Format("{:06X}", kColor) " q5", "Segoe UI Symbol")
         iconCtrl := gGui.Add("Text",
             "x14 y" (yPos + 13) " w18 h20 Background" Format("{:06X}", C_BG_ITEM), kIcon)
 
-        ; Main label
         gGui.SetFont("s11 c" Format("{:06X}", C_FG) " q5", "Segoe UI")
         labelCtrl := gGui.Add("Text",
             "x36 y" (yPos + 7) " w" (WIN_W - 160) " h18 Background" Format("{:06X}", C_BG_ITEM),
             r["label"])
 
-        ; Description / subtitle
         descText := r.Has("desc") ? r["desc"] : ""
         gGui.SetFont("s8 c" Format("{:06X}", C_FG_DIM) " q5", "Segoe UI")
         descCtrl := gGui.Add("Text",
             "x36 y" (yPos + 26) " w" (WIN_W - 160) " h14 Background" Format("{:06X}", C_BG_ITEM),
             descText)
 
-        ; Badge (kind label, right-aligned)
         gGui.SetFont("s7 c" Format("{:06X}", kColor) " q5", "Segoe UI")
         badgeCtrl := gGui.Add("Text",
             "x" (WIN_W - 54) " y" (yPos + 14) " w48 h16 +Right Background" Format("{:06X}", C_BG_ITEM),
@@ -516,8 +441,7 @@ ShowResults(results) {
     Highlight(1)
 }
 
-; Handle mouse clicks on result rows
-OnMessage(0x201, WM_LBUTTONDOWN)  ; WM_LBUTTONDOWN
+OnMessage(0x201, WM_LBUTTONDOWN)
 WM_LBUTTONDOWN(wParam, lParam, msg, hwnd) {
     global gGui, gResults, WIN_H, RESULT_H
     if !IsObject(gGui)
@@ -536,23 +460,18 @@ WM_LBUTTONDOWN(wParam, lParam, msg, hwnd) {
 
 Highlight(idx) {
     global gResults, gSel, gRows
-
     gSel := idx
-
     loop gResults.Length {
         i     := A_Index
         isSel := (i = idx)
         row   := gRows[i]
         kind  := gResults[i]["kind"]
         kCol  := KIND_COLORS.Has(kind) ? KIND_COLORS[kind] : C_FG_DIM
-
-        bgCol    := isSel ? C_BG_SEL  : C_BG_ITEM
-        fgCol    := isSel ? C_FG_SEL  : C_FG
-        accentCol := isSel ? kCol     : kCol     ; icon keeps kind color always
-
+        bgCol := isSel ? C_BG_SEL : C_BG_ITEM
+        fgCol := isSel ? C_FG_SEL : C_FG
         try {
             row.bg.Opt("Background"        Format("{:06X}", bgCol))
-            row.iconCtrl.Opt("Background"  Format("{:06X}", bgCol) " c" Format("{:06X}", accentCol))
+            row.iconCtrl.Opt("Background"  Format("{:06X}", bgCol) " c" Format("{:06X}", kCol))
             row.labelCtrl.Opt("Background" Format("{:06X}", bgCol) " c" Format("{:06X}", fgCol))
             row.descCtrl.Opt("Background"  Format("{:06X}", bgCol))
             row.badgeCtrl.Opt("Background" Format("{:06X}", bgCol))
@@ -583,8 +502,6 @@ OnEnter(*) {
     HideLauncher()
     if gResults.Length
         LaunchResult(gResults[gSel])
-    else
-        Run "https://www.google.com/search?q=" q
 }
 
 LaunchSelected() {
@@ -602,8 +519,13 @@ LaunchResult(r) {
     RecordHistory(label)
 
     if (kind = "math") {
-        ; Copy result to clipboard
         A_Clipboard := path
+        ShowToast("Copied: " path)
+        return
+    }
+
+    if (kind = "url") {
+        Run path
         return
     }
 
@@ -612,7 +534,6 @@ LaunchResult(r) {
             DllCall("LockWorkStation")
             return
         }
-        ; Check if it's a rundll32 / special command
         if RegExMatch(path, "^rundll32|^shutdown|^wsl") {
             Run path,, "Hide"
             return
@@ -623,19 +544,7 @@ LaunchResult(r) {
         return
     }
 
-    if (kind = "url") {
-        Run path
-        return
-    }
-
-    if (kind = "file") {
-        try Run path
-        catch
-            try Run "explorer.exe /select,`"" path "`""
-        return
-    }
-
-    ; app (.lnk or executable)
+    ; app
     try Run path
     catch {
         try Run label
@@ -645,7 +554,7 @@ LaunchResult(r) {
 }
 
 ; ═══════════════════════════════════════════════════════════════════════════════
-;  TOAST NOTIFICATION  (brief error / info display)
+;  TOAST
 ; ═══════════════════════════════════════════════════════════════════════════════
 ShowToast(msg) {
     t := Gui("+AlwaysOnTop -Caption +LastFound +E0x08000000", "Toast")
@@ -659,7 +568,7 @@ ShowToast(msg) {
 }
 
 ; ═══════════════════════════════════════════════════════════════════════════════
-;  LAUNCH HISTORY
+;  HISTORY
 ; ═══════════════════════════════════════════════════════════════════════════════
 LoadHistory() {
     global gHistory, HISTORY_FILE
@@ -700,6 +609,5 @@ GetHistoryBonus(label) {
     if !gHistory.Has(label)
         return 0
     cnt := gHistory[label]
-    ; logarithmic bonus, max +20
     return Min(20, Integer(Log(cnt + 1) * 10))
 }
