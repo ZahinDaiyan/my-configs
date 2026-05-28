@@ -1,0 +1,58 @@
+-- =============================================================================
+-- lua/plugins/editing.lua
+-- Text Editing, Auto-Pairs, Smart Comments, and Fast Motions
+-- =============================================================================
+
+return {
+
+  -- Surround: change/delete/add surroundings (e.g. cs"', ysiw(, ds{)
+  {
+    "kylechui/nvim-surround",
+    version = "*",
+    event   = "VeryLazy",
+    config  = function()
+      require("nvim-surround").setup()
+    end,
+  },
+
+  -- Autopairs: auto-closes bracket pairs (), {}, [], "", '', etc.
+  {
+    "windwp/nvim-autopairs",
+    event  = "InsertEnter",
+    config = function()
+      require("nvim-autopairs").setup()
+    end,
+  },
+
+  -- Autotag: auto-closes and auto-renames HTML/JSX tags (smart TS integration)
+  {
+    "windwp/nvim-ts-autotag",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end,
+  },
+
+  -- Comment.nvim: smart commenting
+  -- Use `gcc` to toggle line comments, and `gc` in visual mode to comment blocks
+  {
+    "numToStr/Comment.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("Comment").setup()
+    end,
+  },
+
+  -- Flash.nvim: Blazing-fast jump motions and text selection jumping
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end,       desc = "Flash Search Jump" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter Scope Selection" },
+      { "r", mode = "o",               function() require("flash").remote() end,     desc = "Flash Remote Operator Motion" },
+      { "R", mode = { "o", "x" },      function() require("flash").treesitter_search() end, desc = "Treesitter Search Select" },
+    },
+  },
+}
