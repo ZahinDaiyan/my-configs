@@ -40,6 +40,7 @@ return {
           "jsonls",
           "emmet_language_server",
           "lua_ls",
+          "pyright",
         },
         automatic_installation = true,
       })
@@ -77,6 +78,9 @@ return {
 
       -- Configure Javascript / Typescript
       setup_server("ts_ls")
+
+      -- Configure Pyright for Python
+      setup_server("pyright")
 
       -- Configure HTML
       setup_server("html")

@@ -27,6 +27,7 @@ return {
         "markdown_inline",
         "cpp",
         "c",
+        "python",
       },
       highlight = {
         enable = true,

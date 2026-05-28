@@ -50,16 +50,29 @@ end
 
 -- Compile & run with <F5>
 function M.compile_run()
-  if vim.fn.expand("%:e") ~= "cpp" then
-    vim.notify("Not a C++ file!", vim.log.levels.WARN)
+  local ext = vim.fn.expand("%:e")
+  if ext ~= "cpp" and ext ~= "py" then
+    vim.notify("Unsupported file type!", vim.log.levels.WARN)
     return
   end
 
   vim.cmd("write")
 
   local file = vim.fn.expand("%:p")
-  local exe  = vim.fn.expand("%:p:r") .. ".exe"
-  local cmd  = build_cmd(file, exe)
+  local cmd
+
+  if ext == "cpp" then
+    local exe  = vim.fn.expand("%:p:r") .. ".exe"
+    cmd  = build_cmd(file, exe)
+  elseif ext == "py" then
+    local dir   = vim.fn.fnamemodify(file, ":h")
+    local input = dir .. "\\" .. cfg.input_file
+    if vim.fn.filereadable(input) == 1 then
+      cmd = string.format("python '%s' < '%s'", file, input)
+    else
+      cmd = string.format("python '%s'", file)
+    end
+  end
 
   close_terminal()
   vim.cmd('botright 15split | terminal powershell -NoExit -Command "' .. cmd .. '"')
@@ -68,7 +81,13 @@ end
 
 -- Compile only with <F6> (check for errors without running)
 function M.compile_only()
-  if vim.fn.expand("%:e") ~= "cpp" then
+  local ext = vim.fn.expand("%:e")
+  if ext == "py" then
+    vim.notify("Python is interpreted and does not require manual compilation!", vim.log.levels.INFO)
+    return
+  end
+
+  if ext ~= "cpp" then
     vim.notify("Not a C++ file!", vim.log.levels.WARN)
     return
   end

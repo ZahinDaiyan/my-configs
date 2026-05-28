@@ -22,6 +22,7 @@ return {
           css             = { "prettier" },
           json            = { "prettier" },
           markdown        = { "prettier" },
+          python          = { "black" },
         },
         -- Format-on-save configuration
         format_on_save = {
