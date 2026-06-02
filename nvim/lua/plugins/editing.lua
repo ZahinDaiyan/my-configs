@@ -33,6 +33,27 @@ return {
     end,
   },
 
+  -- VimTeX: LaTeX editing, compilation, and preview support
+  {
+    "lervag/vimtex",
+    ft = { "tex", "bib" },
+    config = function()
+      if vim.fn.has("win32") == 1 then
+        vim.g.vimtex_view_method = "SumatraPDF"
+      else
+        vim.g.vimtex_view_method = "zathura"
+      end
+      vim.g.vimtex_compiler_method = "latexmk"
+      vim.g.vimtex_quickfix_mode = 0
+    end,
+  },
+
+  -- Jupyter-vim: notebook-style Python cell execution and Jupyter interaction
+  {
+    "jupyter-vim/jupyter-vim",
+    ft = { "python", "jupyter" },
+  },
+
   -- Comment.nvim: smart commenting
   -- Use `gcc` to toggle line comments, and `gc` in visual mode to comment blocks
   {

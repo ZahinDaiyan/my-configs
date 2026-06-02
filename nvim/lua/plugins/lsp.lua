@@ -23,6 +23,15 @@ return {
     end,
   },
 
+  -- Neodev: improves Lua development experience for Neovim config and plugins
+  {
+    "folke/neodev.nvim",
+    lazy = false,
+    config = function()
+      require("neodev").setup()
+    end,
+  },
+
   -- Mason-lspconfig: Bridges the gap between Mason and lspconfig
   {
     "williamboman/mason-lspconfig.nvim",
@@ -41,6 +50,7 @@ return {
           "emmet_language_server",
           "lua_ls",
           "pyright",
+          "clangd",
         },
         automatic_installation = true,
       })
@@ -81,6 +91,9 @@ return {
 
       -- Configure Pyright for Python
       setup_server("pyright")
+
+      -- Configure C/C++
+      setup_server("clangd")
 
       -- Configure HTML
       setup_server("html")

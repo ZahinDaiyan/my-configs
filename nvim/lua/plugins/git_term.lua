@@ -7,6 +7,12 @@ local map = vim.keymap.set
 
 return {
 
+  -- Fugitive: Git commands and repository browsing from within Neovim
+  {
+    "tpope/vim-fugitive",
+    event = "VeryLazy",
+  },
+
   -- Gitsigns: Shows git diff indicators in the gutter and provides hunk actions
   {
     "lewis6991/gitsigns.nvim",

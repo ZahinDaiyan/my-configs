@@ -23,6 +23,8 @@ return {
           json            = { "prettier" },
           markdown        = { "prettier" },
           python          = { "black" },
+          c               = { "clang-format" },
+          cpp             = { "clang-format" },
         },
         -- Format-on-save configuration
         format_on_save = {
