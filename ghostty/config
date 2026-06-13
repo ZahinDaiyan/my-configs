@@ -1,0 +1,73 @@
+# ==========================================
+# Font Settings
+# ==========================================
+font-family = JetBrainsMono Nerd Font
+font-size = 12
+
+# ==========================================
+# Theme & Visuals
+# ==========================================
+theme = Catppuccin Macchiato
+background-opacity = 0.9
+
+# ==========================================
+# Window & Layout
+# ==========================================
+window-padding-x = 10
+window-padding-y = 10
+window-width = 125
+window-height = 35
+fullscreen = true
+
+# ==========================================
+# Cursor & Special Shaders
+# ==========================================
+custom-shader = ~/.config/ghostty/shaders/cursor_warp.glsl
+custom-shader-animation = always
+
+# Fixes Oh My Zsh stealing cursor control 
+shell-integration-features = no-cursor
+cursor-style = block
+cursor-style-blink = true
+
+# ==========================================
+# Core Keybinds
+# ==========================================
+keybind = ctrl+shift+t=new_tab
+keybind = ctrl+shift+w=close_surface
+
+# ==========================================
+# Vim-Style Windows & Splits Mode (Fixed Syntax)
+# ==========================================
+# Press 'Ctrl+a' to enter "Vim Window Mode"
+keybind = ctrl+a=activate_key_table:vim_mode
+
+# --- Split Management ---
+# Split window horizontally (Vim's :sp)
+keybind = vim_mode/s=new_split:down
+# Split window vertically (Vim's :vsp)
+keybind = vim_mode/v=new_split:right
+
+# --- Navigation (h, j, k, l) ---
+# Move focus between splits
+keybind = vim_mode/h=goto_split:left
+keybind = vim_mode/j=goto_split:down
+keybind = vim_mode/k=goto_split:up
+keybind = vim_mode/l=goto_split:right
+
+# --- Tab Management ---
+# Create and navigate tabs
+keybind = vim_mode/t=new_tab
+keybind = vim_mode/n=next_tab
+keybind = vim_mode/p=previous_tab
+
+# --- Exit Vim Mode ---
+# Press Escape or Enter to drop back into standard typing mode
+keybind = vim_mode/escape=deactivate_key_table
+keybind = vim_mode/enter=deactivate_key_table
+
+# Blocks normal keystrokes from leaking into the shell while in Vim Mode
+keybind = vim_mode/catch_all=ignore
+
+# Added 'stay_while_active=true' so you can chain commands!
+keybind = ctrl+a=activate_key_table:vim_mode,stay_while_active=true
